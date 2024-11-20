@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+
 import mockJson from "./mock.json";
-import { ListItem } from "../types/ListItem";
+
+import { ListItem } from "../types";
 
 export const useGetListData = () => {
   const query = useQuery({
     queryKey: ["list"],
     queryFn: async () => {
-      await sleep(1000);
-
       if (getRandom() > 85) {
         console.error("An unexpected error occurred!");
         throw new Error("👀");
@@ -20,15 +20,10 @@ export const useGetListData = () => {
       });
     },
   });
-
   return query;
 };
 
 const getRandom = () => Math.floor(Math.random() * 100);
-
-const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const shuffle = <T extends any[]>(array: T): T => {

@@ -1,26 +1,23 @@
-import { FC } from "react";
+import { ButtonProps } from "../types";
 import { XMarkIcon } from "./icons";
 
-type ButtonProps = React.ComponentProps<"button">;
-
-export function ExpandButton({ children, ...props }: ButtonProps) {
+export function ToggleButton({
+  children,
+  className,
+  onClick,
+  disabled,
+}: ButtonProps) {
   return (
-    <button
-      className="hover:text-gray-700 transition-colors flex items-center justify-center"
-      {...props}
-    >
+    <button className={className} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );
 }
 
-export const DeleteButton: FC<Omit<ButtonProps, "children">> = (props) => {
+export function DeleteButton({ onClick }: ButtonProps) {
   return (
-    <button
-      className="hover:text-gray-700 transition-colors flex items-center justify-center"
-      {...props}
-    >
+    <button onClick={onClick}>
       <XMarkIcon />
     </button>
   );
-};
+}

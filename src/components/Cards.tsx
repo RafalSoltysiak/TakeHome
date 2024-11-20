@@ -1,63 +1,35 @@
 import { useEffect, useState } from "react";
-import { ListItem } from "../types/ListItem";
-import { DeleteButton, ExpandButton } from "./Buttons";
-import { ChevronDownIcon } from "./icons";
 
-type CardProps = {
-  id: ListItem["id"]; // ID karty
-  title: ListItem["title"];
-  description: ListItem["description"];
-  onDelete: () => void;
-};
+import {
+  getExpandedCards,
+  setExpandedCards,
+} from "../utils/localeStorageUtils";
+import { DeleteButton, ToggleButton } from "./Buttons";
+import { CardProps } from "../types";
+import { ChevronDownIcon } from "./icons";
 
 export default function Cards({ id, title, description, onDelete }: CardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Przy wczytaniu komponentu sprawdzamy, czy karta jest rozwinięta w localStorage
   useEffect(() => {
-    if (!id) return;
-
-    // Pobieramy dane z localStorage
-    const expandedCards = JSON.parse(
-      localStorage.getItem("expandedCards") || "[]"
-    );
-
-    // Sprawdzamy, czy ID karty znajduje się w zapisanej liście rozwiniętych kart
-    if (expandedCards.includes(id.toString())) {
+    if (id && getExpandedCards().includes(id.toString())) {
       setIsExpanded(true);
     }
   }, [id]);
 
-  // Obsługa kliknięcia w przycisk rozwinięcia
   const handleToggleExpand = () => {
     if (!id) return;
 
-    setIsExpanded((prev) => {
-      const updatedState = !prev;
+    const cardId = id.toString();
+    const expandedCards = getExpandedCards();
 
-      // Pobieramy obecny stan rozwiniętych kart z localStorage
-      const expandedCards = JSON.parse(
-        localStorage.getItem("expandedCards") || "[]"
-      );
+    if (isExpanded) {
+      setExpandedCards(expandedCards.filter((cid) => cid !== cardId));
+    } else {
+      setExpandedCards([...expandedCards, cardId]);
+    }
 
-      if (updatedState) {
-        // Dodajemy ID do localStorage, jeśli karta jest rozwinięta
-        localStorage.setItem(
-          "expandedCards",
-          JSON.stringify([...expandedCards, id.toString()])
-        );
-      } else {
-        // Usuwamy ID z localStorage, jeśli karta jest zwinięta
-        localStorage.setItem(
-          "expandedCards",
-          JSON.stringify(
-            expandedCards.filter((cardId: string) => cardId !== id.toString())
-          )
-        );
-      }
-
-      return updatedState;
-    });
+    setIsExpanded((prev) => !prev);
   };
 
   return (
@@ -66,18 +38,22 @@ export default function Cards({ id, title, description, onDelete }: CardProps) {
         <h1 className="font-medium">{title}</h1>
         <div className="flex">
           <div className={`flex item-details ${isExpanded ? "expanded" : ""}`}>
-            <ExpandButton onClick={handleToggleExpand}>
+            <ToggleButton
+              onClick={handleToggleExpand}
+              className="hover:text-gray-700 transition-colors flex items-center justify-center"
+            >
               <span className="item-details-icon">
                 <ChevronDownIcon />
               </span>
-            </ExpandButton>
+            </ToggleButton>
           </div>
           <DeleteButton onClick={onDelete} />
         </div>
       </div>
       <div
-        className={`overflow-hidden transition-[max-height] duration-300 ease-in-out`}
-        style={{ maxHeight: isExpanded ? "200px" : "0" }}
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isExpanded ? "max-h-[200px]" : "max-h-0"
+        }`}
       >
         <p className="text-sm">{description}</p>
       </div>
